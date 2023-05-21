@@ -123,14 +123,17 @@ module.exports = {
 
     loggedUser: (req, res) => {
         // ID de l'utilisateur extrait du jeton JWT ou de la session
-        const idUser = req.user.idUser
-        // Récupérer les informations de l'utilisateur à partir des données stockées
-        const user = getUserById(idUser);
-        if (!user) {
-        return res.status(404).json({ message: 'User not found' });
-        }else{
-        res.json(user);
+        const id = req.user.id;
+        db.query('SELECT * FROM users WHERE idUser = ?', id, (error, results) => {
+        if (error) {
+            res.status(400).json({ message: 'an error occurred' });
+        } else if (results.length === 0) {
+            res.status(404).json({ message: 'User was not found' });
+        } else {
+        const user = results[0];
+            res.status(200).json(user);
         }
+        });
     }
 
 }
