@@ -17,19 +17,19 @@ module.exports = {
     },
 
     authenticateToken: (req, res, next) => {
-        const token = req.headers.authorization;
+       const token = req.headers.authorization;
 
         if (!token) {
-            return res.status(401).json({ message: "Access denied. Token missing."  });
+            return res.status(401).json({ error: "Access denied. Token missing." });
         }
-
-        try {
-            const decoded = jwt.verify(token, 'my-secret-key');
-            req.user = decoded; // Ajoute les informations utilisateur au req object
-            next();
-        } catch (error) {
-            return res.status(401).json({ message: 'Invalid token' });
-        }
+        jwt.verify(token, process.env.JWT_SECRET, (error, decoded) => {
+            if (error) {
+                return res.status(401).json({ error: "Invalid token." });
+             }
+        // permet de pour stocker les infos du user authentifié dans l'objet req,
+                req.user = decoded;
+                next();
+        });
     }
 
 }
